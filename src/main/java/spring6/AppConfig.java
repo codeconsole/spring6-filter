@@ -20,7 +20,7 @@ public class AppConfig extends AbstractAnnotationConfigDispatcherServletInitiali
             @Override
             protected void applyCustomConfiguration(SiteMeshFilterBuilder builder) {
                 MetaTagBasedDecoratorSelector decoratorSelector = new MetaTagBasedDecoratorSelector<WebAppContext>();
-                decoratorSelector.put("/*", "/WEB-INF/decorators/default2.jsp");
+                decoratorSelector.put("/*", "default2.jsp");
                 builder.setCustomDecoratorSelector(decoratorSelector);
             }
         };
@@ -38,7 +38,7 @@ public class AppConfig extends AbstractAnnotationConfigDispatcherServletInitiali
         if (sitemesh != null) {
             logger.severe(String.format("*** '%s' filter already registered by your Application Server ***", sitemesh.getName()));
         } else {
-            sitemesh = servletContext.addFilter("sitemesh", siteMeshFilter());
+            sitemesh = servletContext.addFilter("configurableSiteMeshFilter", siteMeshFilter());
             sitemesh.addMappingForUrlPatterns(EnumSet.of(DispatcherType.REQUEST, DispatcherType.ERROR), false, "/*");
         }
         super.onStartup(servletContext);
@@ -64,6 +64,8 @@ public class AppConfig extends AbstractAnnotationConfigDispatcherServletInitiali
     protected Filter[] getServletFilters() {
         CharacterEncodingFilter characterEncodingFilter = new CharacterEncodingFilter();
         characterEncodingFilter.setEncoding("UTF-8");
-        return new Filter[] { characterEncodingFilter, siteMeshFilter() };
+        // Registering a filter here would occur *after* @WebFilter
+        return new Filter[] { characterEncodingFilter };
+//        return new Filter[] { characterEncodingFilter, siteMeshFilter() };
     }
 }
